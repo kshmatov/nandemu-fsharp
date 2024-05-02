@@ -2,6 +2,14 @@
 open System
 open alu
 
+// Sample program:
+// @2
+// D=A
+// @3
+// D=D+A
+// @0
+// M=D
+
 let sample = [|0b0000000000000010us;
 0b1110110000010000us;
 0b0000000000000011us;
