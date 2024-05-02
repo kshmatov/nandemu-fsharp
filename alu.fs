@@ -2,7 +2,7 @@ module alu
 
 open memory
 
-let firstBit = 1 <<< 16 |> uint16
+let firstBit = 0b1000000000000000us
 let private jumpMask = 0b0000000000000111us
 let private destMask = 0b0000000000111000us
 let private compMask = 0b0000111111000000us
@@ -31,7 +31,7 @@ type OpCode =
     | srcMinusD = 0b000111
     | dAndSrc = 0b000000
     | dOrSrc = 0b010101
-    | halt = 0b111111
+    | halt = 0b011110
 
 type JumpCode = 
     | None = 0b000
@@ -132,16 +132,16 @@ let calcJump (jmp:JumpCode) (v: Value) (cp: Address) (alt:Address) :Address=
     | JumpCode.Now -> alt
     | _ -> cp + 1us
 
-
 let parseInstruction (op: Instruction): VMOp = 
-    if op &&& firstBit = 1us then
-        let jump = jumpMask &&& op |> int32 |> enum<JumpCode>
-        let dest: Destination = destMask &&& op >>> 3 |> byte |> parseDest
-        let comp = compMask &&& op >>> 6 |> int32 |> enum<OpCode>
-        let src = if op &&& srcMask = 1us then OperandSource.Memory else OperandSource.ARegister
-        ComputationOp {src=src; comp=comp; dest=dest; jump=jump}
-    else
+    if op &&& firstBit = 0us then
         AddressOp (op |> int16)
+    else
+        ComputationOp {
+            jump = jumpMask &&& op |> int32 |> enum<JumpCode>;
+            dest = destMask &&& op >>> 3 |> byte |> parseDest;
+            comp = compMask &&& op >>> 6 |> int32 |> enum<OpCode>;
+            src = if op &&& srcMask = 0us then OperandSource.ARegister else OperandSource.Memory
+        }
 
 let makeStep (op: OpDesc) (regs: alu) (mem: State): alu =
     let v = 
@@ -157,13 +157,16 @@ let makeStep (op: OpDesc) (regs: alu) (mem: State): alu =
         DRegister = if op.dest.toDRegister then res else regs.DRegister
     }
 
-let Run (rom: memory.Instruction array) =
+let RunSettings (rom: memory.Instruction array) (tick: int) (debug: bool): int = 
     let regs = {ProgramCounter = 0us; ARegister = 0s; DRegister = 0s}
     let mem = memory.Init
     rom |> mem.Load
-    let rec step (mem: State) (regs: alu):int =  
-        printfn $"pc: {regs.ProgramCounter}; a: {regs.ARegister}; d: {regs.DRegister}; mem[a]: {mem.GetMem (regs.ARegister |> uint16)}"
+    let rec step (mem: State) (regs: alu):int = 
         let op = regs.ProgramCounter |> mem.GetInstaruction |> parseInstruction
+        System.Threading.Thread.Sleep tick
+        if debug then
+            printfn $"pc: {regs.ProgramCounter}; a: {regs.ARegister}; d: {regs.DRegister}; mem[a]: {mem.GetMem (regs.ARegister |> uint16)}"
+            printfn $"{op}"
         match op with
         | _ when regs.ProgramCounter > 0x6000us -> -2
         | VMOp.AddressOp a -> 
@@ -172,3 +175,6 @@ let Run (rom: memory.Instruction array) =
         | VMOp.ComputationOp op -> makeStep op regs mem |> step mem
 
     step mem regs
+
+let Run (rom: memory.Instruction array) =
+    RunSettings rom 1 false
