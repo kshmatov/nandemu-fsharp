@@ -20,6 +20,12 @@ type State =
     member this.GetInstaruction (a: Address) =
         this.Instructions[int a]
 
+    member this.GetVideo: Value array =
+        Array.sub this.Data 0x4000 8192
+
+    member this.SetKey (k: int16) =
+        this.Data[0x6000] <- k
+
     member this.Clean() =
         Array.Clear this.Data
         Array.Clear this.Instructions
