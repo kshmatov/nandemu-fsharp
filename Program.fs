@@ -18,6 +18,18 @@ let sample = [|0b0000000000000010us;
 0b1110001100001000us;
 0b1111011110111111us;|]
 
-let res = alu.RunSettings sample 1 true
+let loadFile path = 
+    IO.File.ReadAllText path
 
-printfn "Sample run: %d" res
+let txtTobin (code: string): uint16 array = 
+    code.Split "\n" |> Array.filter (fun x -> x.Length > 0)|> Array.map (fun x -> "0b" + x |> uint16)
+
+[<EntryPoint>]
+let main argv =
+    let rom = 
+        if argv.Length > 0 then
+            argv[0] |> loadFile |> txtTobin
+        else
+            sample
+    computer.RunComputer true 10 rom
+    0

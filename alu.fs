@@ -62,9 +62,10 @@ let dOrSrcOp (d: Value) (s:Value): Value = d ||| s
 let haltOp (d: Value) (s:Value): Value = 0s
 
 type alu = {
-    ProgramCounter: Address
-    ARegister: Value
-    DRegister: Value
+    mutable ProgramCounter: Address
+    mutable ARegister: Value
+    mutable DRegister: Value
+    Debug: bool
 }
 
 type OperandSource = 
@@ -143,7 +144,10 @@ let parseInstruction (op: Instruction): VMOp =
             src = if op &&& srcMask = 0us then OperandSource.ARegister else OperandSource.Memory
         }
 
-let makeStep (op: OpDesc) (regs: alu) (mem: State): alu =
+let makeCOp (op: OpDesc) (regs: alu) (mem: State): alu =
+    if regs.Debug then
+        printfn $"pc: {regs.ProgramCounter}; d: {regs.DRegister}; a: {regs.ARegister}; mem[a]:{mem.GetMem(regs.ARegister |> uint16)}"
+        printfn $"{op}"
     let v = 
         if op.src = OperandSource.Memory then 
             regs.ARegister |> uint16 |> mem.GetMem
@@ -151,30 +155,43 @@ let makeStep (op: OpDesc) (regs: alu) (mem: State): alu =
             regs.ARegister
     let res = getOp op.comp regs.DRegister v
     if op.dest.toMem then mem.SetMem (regs.ARegister |> uint16) res
-    {
-        ProgramCounter = calcJump op.jump res regs.ProgramCounter (regs.ARegister |> uint16);
-        ARegister = if op.dest.toARegister then res else regs.ARegister;
-        DRegister = if op.dest.toDRegister then res else regs.DRegister
-    }
+    regs.ProgramCounter <- calcJump op.jump res regs.ProgramCounter (regs.ARegister |> uint16)
+    regs.ARegister <- if op.dest.toARegister then res else regs.ARegister
+    regs.DRegister <- if op.dest.toDRegister then res else regs.DRegister
+    regs
 
-let RunSettings (rom: memory.Instruction array) (tick: int) (debug: bool): int = 
-    let regs = {ProgramCounter = 0us; ARegister = 0s; DRegister = 0s}
+let makeAOp(regs: alu) (a: Value): alu =
+    if regs.Debug then
+        printfn $"pc: {regs.ProgramCounter}; d: {regs.DRegister}; a: {regs.ARegister}"
+        printfn $"AddressOp old: {regs.ARegister} new: {a}"
+    regs.ProgramCounter <- regs.ProgramCounter + 1us
+    regs.ARegister <- a
+    regs
+
+let oneStep (mem: State) (regs: alu):alu option= 
+    let op = regs.ProgramCounter |> mem.GetInstaruction |> parseInstruction
+    match op with
+    | _ when regs.ProgramCounter > 0x6000us -> None
+    | VMOp.ComputationOp x when x.comp = OpCode.halt -> None
+    | VMOp.AddressOp a -> makeAOp regs a |> Some
+    | VMOp.ComputationOp op -> makeCOp op regs mem |> Some
+
+
+let InitAlu(debug:bool): alu = 
+    {ProgramCounter = 0us; ARegister = 0s; DRegister = 0s; Debug = debug}
+
+let RunAluSettings (rom: memory.Instruction array) (tick: int) (debug: bool): int = 
+    let regs = InitAlu debug
     let mem = memory.Init
     rom |> mem.Load
+
     let rec step (mem: State) (regs: alu):int = 
-        let op = regs.ProgramCounter |> mem.GetInstaruction |> parseInstruction
         System.Threading.Thread.Sleep tick
-        if debug then
-            printfn $"pc: {regs.ProgramCounter}; a: {regs.ARegister}; d: {regs.DRegister}; mem[a]: {mem.GetMem (regs.ARegister |> uint16)}"
-            printfn $"{op}"
-        match op with
-        | _ when regs.ProgramCounter > 0x6000us -> -2
-        | VMOp.AddressOp a -> 
-            {ProgramCounter = regs.ProgramCounter + 1us; ARegister = a; DRegister = regs.DRegister} |> step  mem
-        | VMOp.ComputationOp x when x.comp = OpCode.halt -> 0
-        | VMOp.ComputationOp op -> makeStep op regs mem |> step mem
+        match oneStep mem regs with
+        | None -> 0
+        | Some regs -> step mem regs
 
     step mem regs
 
-let Run (rom: memory.Instruction array) =
-    RunSettings rom 1 false
+let RunAlu (rom: memory.Instruction array) =
+    RunAluSettings rom 1 false
