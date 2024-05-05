@@ -172,9 +172,9 @@ let oneStep (mem: State) (regs: alu):alu option=
     let op = regs.ProgramCounter |> mem.GetInstaruction |> parseInstruction
     match op with
     | _ when regs.ProgramCounter > 0x6000us -> None
-    | VMOp.ComputationOp x when x.comp = OpCode.halt -> None
-    | VMOp.AddressOp a -> makeAOp regs a |> Some
-    | VMOp.ComputationOp op -> makeCOp op regs mem |> Some
+    | ComputationOp x when x.comp = OpCode.halt -> None
+    | AddressOp a -> makeAOp regs a |> Some
+    | ComputationOp op -> makeCOp op regs mem |> Some
 
 
 let InitAlu(debug:bool): alu = 
