@@ -60,7 +60,6 @@ let keyDown (ev: Keys): NandKeys =
 
 let drawByte (b: Drawing.Bitmap) (row: int) (col: int) (d: int16):unit =
     for col1 = 0 to 15 do
-        printfn $"draw pixel x: {col*16+col1}; y: {row} data: {d}"
         if (d <<< col1) &&& 0b1000000000000000s = 0s then
             b.SetPixel(col*16+col1, row, Drawing.Color.Black)
         else
@@ -81,7 +80,6 @@ let fullDisplayUpdate  (p: PictureBox) :unit =
     
 let byteDisplayUpdate (p: PictureBox): (memory.Address -> memory.Value -> unit) = 
     (fun a v ->
-        printfn $"update addr: {a} to v: {v}"
         let bmp =  p.Image :?> Drawing.Bitmap
         let row = a / 32us
         let col = a % 32us
