@@ -1,6 +1,5 @@
 ﻿// Virual machine from NAND to Tetris course
 open System
-open alu
 
 // Sample program:
 // @2

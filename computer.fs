@@ -43,7 +43,7 @@ let keyToCode = function
 let keyDown (ev: Keys): NandKeys =
     match ev with
         | x when x = Keys.Back -> NandKeys.BSpace
-        | x when x = Keys.Escape -> NandKeys.Esc
+        | x when x = Keys.Escape || x = Keys.CapsLock -> NandKeys.Esc
         | x when x >= Keys.F1 && x <= Keys.F12 -> int(ev) + 1 - int(Keys.F1) |> Func
         | x when x = Keys.Delete -> NandKeys.Del
         | x when x = Keys.Insert -> NandKeys.Ins
@@ -58,29 +58,46 @@ let keyDown (ev: Keys): NandKeys =
         | x when x = Keys.Enter -> NandKeys.Enter
         | _ -> NandKeys.Ignored
 
-let show  (p: PictureBox) (mem: memory.Value array):unit =
-    let bmp =  p.Image :?> Drawing.Bitmap
-    for row = 0 to 255 do
-        let pos = 32 * row
-        for col = 0 to 31 do
-            if mem.Length <= pos+col then
-                printfn $"pos {pos+col}"
-            let b = mem[pos+col]
-            for col1 = 0 to 15 do
-                if (b <<< col1) &&& 0b1000000000000000s = 0s then
-                    bmp.SetPixel(col*16+col1, row, Drawing.Color.Black)
-                else
-                    bmp.SetPixel(col*16+col1, row, Drawing.Color.White)
+let drawByte (b: Drawing.Bitmap) (row: int) (col: int) (d: int16):unit =
+    for col1 = 0 to 15 do
+        if (d <<< col1) &&& 0b1000000000000000s = 0s then
+            b.SetPixel(col*16+col1, row, Drawing.Color.Black)
+        else
+            b.SetPixel(col*16+col1, row, Drawing.Color.White)
 
+let updateDisplay (p: PictureBox) (bmp: Drawing.Bitmap): unit =
     let g = p.CreateGraphics()
     g.DrawImage(bmp, 0, 0 ,512, 256)
 
-let RunComputer (debug: bool) (tick: int) (rom: uint16 array) = 
-    let mutable regs = alu.InitAlu debug
-    let mem = memory.Init
-    mem.Load rom
 
+let fullDisplayUpdate  (p: PictureBox) :unit =
+    let bmp =  p.Image :?> Drawing.Bitmap
+    for row = 0 to 255 do
+        let pos = 32 * row
+        for col = 0 to 511 do
+            bmp.SetPixel(col, row, Drawing.Color.Black)
+    updateDisplay p bmp
+    
+let byteDisplayUpdate (p: PictureBox): (memory.Address -> memory.Value -> unit) = 
+    (fun a v ->
+        let bmp =  p.Image :?> Drawing.Bitmap
+        let row = a / 32us
+        let col = a % 32us
+        drawByte bmp (row |> int) (col |> int) v
+        updateDisplay p bmp
+    )
+
+let getDisplay() =
     let display = new PictureBox()
+    display.BackColor <- Drawing.Color.Gray
+    display.Size  <- Drawing.Size(Drawing.Point(512,256))
+    display.Top <- 2
+    display.Left <- 2
+    display.Enabled <- false
+    display.Image <- new Drawing.Bitmap(512, 256)
+    display
+
+let getForm (display: PictureBox):Form =
     let form = new Form(Text="Nand to Tetris VM",
                         Visible = true,
                         TopMost = true)
@@ -88,16 +105,21 @@ let RunComputer (debug: bool) (tick: int) (rom: uint16 array) =
     form.ClientSize <- Drawing.Size(Drawing.Point(512,256))
     form.MaximizeBox <- false
     form.Controls.Add display
-
-    display.BackColor <- Drawing.Color.Gray
-    display.Size  <- Drawing.Size(Drawing.Point(512,256))
-    display.Top <- 2
-    display.Left <- 2
-    display.Enabled <- false
     form.AutoSize <- true
+    form
 
-    let bmp = new Drawing.Bitmap(512, 256)
-    display.Image <- bmp
+let getTimer tick = 
+    let timer = new Timer()
+    timer.Interval <- tick
+    timer
+    
+let RunComputer (debug: bool) (tick: int) (rom: uint16 array) = 
+    let display = getDisplay()
+    let form = getForm display
+
+    let mutable regs = alu.InitAlu debug
+    let mem = memory.Init (byteDisplayUpdate display |> Some)
+    mem.Load rom
 
     form.Click.Add(fun evArgs -> System.Console.Beep())
     form.KeyDown.Add( fun ev -> 
@@ -111,17 +133,21 @@ let RunComputer (debug: bool) (tick: int) (rom: uint16 array) =
     )
     form.KeyUp.Add(fun ev -> mem.SetKey 0s)
 
-    let timer = new Timer()
-    timer.Interval <- tick
+    let timer = getTimer tick
+    
     timer.Tick.Add(fun x  ->
         match alu.oneStep mem regs with
         | Some r -> 
             regs <-r
-            mem.GetVideo |> show display
+            // mem.GetVideo |> fullDisplayUpdate display
         | None -> 
             timer.Enabled <- false
             printfn "done"
             // form.Close()
     )
-    form.Shown.Add(fun x -> timer.Enabled <- true)
+
+    form.Shown.Add(fun x -> 
+        fullDisplayUpdate display
+        timer.Enabled <- true
+    )
     Application.Run(form)
