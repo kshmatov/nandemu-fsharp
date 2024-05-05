@@ -139,11 +139,9 @@ let RunComputer (debug: bool) (tick: int) (rom: uint16 array) =
         match alu.oneStep mem regs with
         | Some r -> 
             regs <-r
-            // mem.GetVideo |> fullDisplayUpdate display
         | None -> 
             timer.Enabled <- false
             printfn "done"
-            // form.Close()
     )
 
     form.Shown.Add(fun x -> 
