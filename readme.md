@@ -12,12 +12,16 @@
 
 ## Usage
 ```
-$ nandvm.exe [programm_file_path]
+$ nandvm.exe [/h] [/t <value>] [/d] [programm_file_path]
 ```
+- /h - show help message adn exit
+- /d - enable DEBUG mod, optional, default false
+- /t <value> - set cpu tick duration to <value> ms, where value is integer, optional, default 10
+- file_name - path and file name of programm to run, optional. If parameter is empty, sample programm will be executed. Only one file will be executed
 
-Programm file is optional, VM expects any programm in "hack" format, see NAND to Tetris course or samples/rect.hack. If no filename is given VM will run sample programm wich computes 2 + 3 and store result in D-register.
+VM expects any programm in "hack" format, see NAND to Tetris course or samples/rect.hack. Built-in sample programm will computes 2 + 3 and store result in D-register.
 
-I plan to add flags for debug mode and tick duration later.
+There is lack of error handling in CPU cycle, so some urgent error messages possible. Will fix this later
 
 ## Info
 
