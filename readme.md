@@ -14,7 +14,7 @@
 ```
 $ nandvm.exe [/h] [/t <value>] [/d] [programm_file_path]
 ```
-- /h - show help message adn exit
+- /h - show help message and exit
 - /d - enable DEBUG mod, optional, default false
 - /t <value> - set cpu tick duration to <value> ms, where value is integer, optional, default 10
 - file_name - path and file name of programm to run, optional. If parameter is empty, sample programm will be executed. Only one file will be executed

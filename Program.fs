@@ -26,7 +26,7 @@ let sample = [|0b0000000000000010us;
 let usage() = 
     printfn "usage:"
     printfn "$ nandvm [/h] [/d] [/t <value>] [file_name]"
-    printfn "/h - show this message adn exit"
+    printfn "/h - show this message and exit"
     printfn "/d - enable DEBUG mod, optional, default false"
     printfn "/t <value> - set cpu tick duration to <value> ms, where value is integer, optional, default 10"
     printfn "file_name - path and file name of programm to run, optional. If parameter is empty, sample programm will be executed. Only one file will be executed"
