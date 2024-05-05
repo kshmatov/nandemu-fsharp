@@ -182,8 +182,8 @@ let InitAlu(debug:bool): alu =
 
 let RunAluSettings (rom: memory.Instruction array) (tick: int) (debug: bool): int = 
     let regs = InitAlu debug
-    let mem = memory.Init
-    rom |> mem.Load
+    let mem = memory.Init None
+    rom |> mem.Load 
 
     let rec step (mem: State) (regs: alu):int = 
         System.Threading.Thread.Sleep tick

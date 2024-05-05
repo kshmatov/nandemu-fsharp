@@ -31,5 +31,5 @@ let main argv =
             argv[0] |> loadFile |> txtTobin
         else
             sample
-    computer.RunComputer true 10 rom
+    computer.RunComputer false 10 rom
     0
