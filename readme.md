@@ -1,7 +1,7 @@
 # Virtual HACK computer for NAND to Tetris course
 
 ## Disclaimer:
-    I just started to learn F# and dotnet.
+    I just begin to learn F# and dotnet.
 
 ## Done
 - ram
@@ -21,7 +21,7 @@ I plan to add flags for debug mode and tick duration later.
 
 ## Info
 
-One more C-instruction added: **halt**. Opcode 011110, full instruction may looks like 0b1111011110111111. Cpu ignores Jump and Store path of this instruction, it is used just to stop calculation cycle. It will not work in real Hack-processor but is usefull in emulation.
+One more C-instruction added: **halt**. Opcode 011110, full instruction may looks like 0b1111011110111111. Cpu ignores Jump and Store parts of this instruction, it is used just to stop calculation cycle. It will not work in real Hack-processor but is usefull in emulation.
 
 This is "just for fun" project, do not expect any cool stuff here. And I never write anything with C# or WinForms, so visual part may be more ugly then any other.
 
