@@ -171,7 +171,7 @@ let makeAOp(regs: alu) (a: Value): alu =
 let oneStep (mem: State) (regs: alu):alu option= 
     let op = regs.ProgramCounter |> mem.GetInstaruction |> parseInstruction
     match op with
-    | _ when regs.ProgramCounter > 0x6000us -> None
+    | _ when regs.ProgramCounter > 0x7fffus -> None
     | ComputationOp x when x.comp = OpCode.halt -> None
     | AddressOp a -> makeAOp regs a |> Some
     | ComputationOp op -> makeCOp op regs mem |> Some
