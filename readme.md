@@ -19,7 +19,7 @@ $ nandvm.exe [/h] [/t <value>] [/d] [programm_file_path]
 - /t <value> - set cpu tick duration to <value> ms, where value is integer, optional, default 10
 - file_name - path and file name of programm to run, optional. If parameter is empty, sample programm will be executed. Only one file will be executed
 
-VM expects any programm in "hack" format, see NAND to Tetris course or samples/rect.hack. Built-in sample programm will computes 2 + 3 and store result in D-register.
+Emulator expects any programm in "hack" format, see NAND to Tetris course or samples/rect.hack. Built-in sample programm will computes 2 + 3 and store result in D-register.
 
 There is lack of error handling in CPU cycle, so some urgent error messages possible. Will fix this later
 
