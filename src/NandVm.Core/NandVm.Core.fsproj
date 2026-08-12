@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <Compile Include="Memory.fs" />
+    <Compile Include="Decode.fs" />
+    <Compile Include="Cpu.fs" />
+    <Compile Include="Emulator.fs" />
+    <Compile Include="RomLoader.fs" />
+    <Compile Include="Cli.fs" />
+    <Compile Include="Keys.fs" />
+    <Compile Include="ScreenBuffer.fs" />
+  </ItemGroup>
+
+</Project>

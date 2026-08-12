@@ -1,34 +1,74 @@
 # Virtual HACK computer for NAND to Tetris course
 
-## Disclaimer:
-    I just begin to learn F# and dotnet.
+An emulator for the HACK computer from the [NAND to Tetris](https://www.nand2tetris.org/) course, written in F#.
 
-## Done
-- ram
-- rom
-- cpu
-- screen output
-- keyboard input (CapsLock sends Esc code)
+## Architecture
+
+The code is split into three projects:
+
+```
+nandemu.sln              core + UI + CLI + tests (builds and runs on any OS)
+
+src/NandVm.Core/         platform-independent emulator core
+    Types.fs             Value/Address/Instruction, memory map, OpCode/JumpCode enums
+    Memory.fs            HACK data memory (RAM + Screen + Keyboard) and separate ROM
+    Decode.fs            A-/C-instruction decoder
+    Cpu.fs               immutable CPU state, pure `Cpu.step` per instruction
+    Emulator.fs          headless run loop with optional per-instruction pacing
+    RomLoader.fs         HACK binary program file loader
+    Cli.fs               shared /h /d /t argument parsing
+    Keys.fs              HACK keyboard scan codes
+    ScreenBuffer.fs      UI-agnostic screen back buffer (word -> 16 pixels)
+
+src/NandVm.Ui/           Avalonia front-end (Linux, macOS, Windows)
+    Keys.fs              Avalonia keys -> semantic key codes
+    ScreenControl.fs     WriteableBitmap mirror of the screen back buffer
+    MainWindow.fs        wires the core to a window
+    App.fs, Program.fs   Avalonia application bootstrap
+
+src/NandVm.Cli/          headless console runner (works without a display)
+
+tests/NandVm.Core.Tests/ xUnit: decoder, ALU, jumps, memory, screen, keys, integration
+```
+
+The core is decoupled from any UI: `Cpu.step` is a pure function that takes the
+current memory and CPU state and returns the next state (or `None` when the
+machine halts). Screens and the keyboard are memory-mapped devices at the HACK
+addresses `0x4000..0x5FFF` and `0x6000`.
 
 ## Usage
+
+### Headless (CLI)
+
 ```
-$ nandvm.exe [/h] [/t <value>] [/d] [programm_file_path]
+$ dotnet run --project src/NandVm.Cli -- [/h] [/d] [/t <value>] [file_name]
 ```
-- /h - show help message and exit
-- /d - enable DEBUG mod, optional, default false
-- /t <value> - set cpu tick duration to <value> ms, where value is integer, optional, default 10
-- file_name - path and file name of programm to run, optional. If parameter is empty, sample programm will be executed. Only one file will be executed
 
-Emulator expects any programm in "hack" format, see NAND to Tetris course or samples/rect.hack. Built-in sample programm will computes 2 + 3 and store result in D-register.
+- `/h` - show help and exit
+- `/d` - enable DEBUG mode (per-instruction trace), default false
+- `/t <value>` - ms per instruction, default 10; `0` runs at full speed
+- `file_name` - a program in HACK binary format (one 16-bit binary string per line).
+  If omitted, the built-in sample (computes 2 + 3 and stores it in RAM[0]) runs.
+  Only one file is executed. Absolute paths like `/tmp/x.hack` are supported;
+  use `--` to pass a file that starts with a slash unambiguously.
 
-There is lack of error handling in CPU cycle, so some urgent error messages possible. Will fix this later
+```
+$ dotnet run --project src/NandVm.Cli -- /t 0 samples/rect.hack
+```
 
-## Info
+### Desktop (Avalonia, cross-platform)
 
-One more C-instruction added: **halt**. Opcode 011110, full instruction may looks like 0b1111011110111111. Cpu ignores Jump and Store parts of this instruction, it is used just to stop calculation cycle. It will not work in real Hack-processor but is usefull in emulation.
+On any of Linux, macOS or Windows, build and run the Avalonia app from
+`nandemu.sln` with the same arguments:
 
-This is "just for fun" project, do not expect any cool stuff here. And I never write anything with C# or WinForms, so visual part may be more ugly then any other.
+```
+$ dotnet run --project src/NandVm.Ui -- /t 10 samples/rect.hack
+```
 
-Fill free to get this code, blame it or print and burn it. 
+## Notes
 
-**Good luck and be happy!**
+- The emulator expects programs in "hack" format, see `samples/rect.hack`.
+- The `halt` instruction is a non-standard C-instruction extension
+  (`comp = 011110`), used to stop the emulation loop. It will not work on real
+  HACK hardware. Full instruction: `0b1111011110111111`.
+- All int16 ALU arithmetic wraps on overflow, as in the real 16-bit HACK ALU.

@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A52BAB0C-485F-4399-8D59-909F467E55F0}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NandVm.Core", "src\NandVm.Core\NandVm.Core.fsproj", "{D94328CF-64DD-45B4-9AD7-95323924F13F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NandVm.Cli", "src\NandVm.Cli\NandVm.Cli.fsproj", "{63BD2828-BD48-4BCC-804A-63CFBC815842}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0ECAB9FA-82F6-4BB1-8435-B02600CAC2CD}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NandVm.Core.Tests", "tests\NandVm.Core.Tests\NandVm.Core.Tests.fsproj", "{E464CE45-BE3E-4E91-ADC8-2D2B3426842A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NandVm.Ui", "src\NandVm.Ui\NandVm.Ui.fsproj", "{D0CF7211-F72A-49C3-949E-81583E5554AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D94328CF-64DD-45B4-9AD7-95323924F13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D94328CF-64DD-45B4-9AD7-95323924F13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D94328CF-64DD-45B4-9AD7-95323924F13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D94328CF-64DD-45B4-9AD7-95323924F13F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63BD2828-BD48-4BCC-804A-63CFBC815842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63BD2828-BD48-4BCC-804A-63CFBC815842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63BD2828-BD48-4BCC-804A-63CFBC815842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63BD2828-BD48-4BCC-804A-63CFBC815842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E464CE45-BE3E-4E91-ADC8-2D2B3426842A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E464CE45-BE3E-4E91-ADC8-2D2B3426842A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E464CE45-BE3E-4E91-ADC8-2D2B3426842A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E464CE45-BE3E-4E91-ADC8-2D2B3426842A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0CF7211-F72A-49C3-949E-81583E5554AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0CF7211-F72A-49C3-949E-81583E5554AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0CF7211-F72A-49C3-949E-81583E5554AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0CF7211-F72A-49C3-949E-81583E5554AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D94328CF-64DD-45B4-9AD7-95323924F13F} = {A52BAB0C-485F-4399-8D59-909F467E55F0}
+		{63BD2828-BD48-4BCC-804A-63CFBC815842} = {A52BAB0C-485F-4399-8D59-909F467E55F0}
+		{E464CE45-BE3E-4E91-ADC8-2D2B3426842A} = {0ECAB9FA-82F6-4BB1-8435-B02600CAC2CD}
+		{D0CF7211-F72A-49C3-949E-81583E5554AE} = {A52BAB0C-485F-4399-8D59-909F467E55F0}
+	EndGlobalSection
+EndGlobal
